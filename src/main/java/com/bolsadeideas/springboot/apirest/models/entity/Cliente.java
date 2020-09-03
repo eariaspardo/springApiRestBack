@@ -25,6 +25,9 @@ public class Cliente implements Serializable{
 	private String apellido;
 	private String email;
 	
+	@Column(name = "numero_tarjeta")
+	private Long numeroTarjeta;
+	
 	@Column(name = "create_at")
 	@Temporal(TemporalType.DATE)
 	private Date createAt;
@@ -72,6 +75,14 @@ public class Cliente implements Serializable{
 
 	public void setCreateAt(Date createAt) {
 		this.createAt = createAt;
+	}
+
+	public Long getNumeroTarjeta() {
+		return numeroTarjeta;
+	}
+
+	public void setNumeroTarjeta(Long numeroTarjeta) {
+		this.numeroTarjeta = numeroTarjeta;
 	}
 
 }

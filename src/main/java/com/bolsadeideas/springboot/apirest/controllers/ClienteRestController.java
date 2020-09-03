@@ -50,6 +50,7 @@ public class ClienteRestController {
 		clienteActual.setNombre(cliente.getNombre());
 		clienteActual.setApellido(cliente.getApellido());
 		clienteActual.setEmail(cliente.getEmail());
+		clienteActual.setNumeroTarjeta(cliente.getNumeroTarjeta());
 		
 		// ===== si el Id llega con un valor el metodo actualiza, si el Id llega sin valor el metodo guarda
 		return clienteService.save(clienteActual); 
