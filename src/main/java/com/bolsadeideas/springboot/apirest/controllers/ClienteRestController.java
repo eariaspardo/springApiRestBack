@@ -2,18 +2,19 @@ package com.bolsadeideas.springboot.apirest.controllers;
 
 import java.util.List;
 
+import com.bolsadeideas.springboot.apirest.models.AuthenticationRequest;
+import com.bolsadeideas.springboot.apirest.models.AuthenticationResponse;
+import com.bolsadeideas.springboot.apirest.models.services.MyUserDetailsService;
+import com.bolsadeideas.springboot.apirest.util.JwtUtil;
+import net.bytebuddy.implementation.auxiliary.AuxiliaryType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.*;
 
 import com.bolsadeideas.springboot.apirest.models.entity.Cliente;
 import com.bolsadeideas.springboot.apirest.models.services.IClienteService;
@@ -24,7 +25,13 @@ import com.bolsadeideas.springboot.apirest.models.services.IClienteService;
 public class ClienteRestController {
 	
 	@Autowired
-	private IClienteService clienteService; 
+	private IClienteService clienteService;
+
+	@Autowired
+	private MyUserDetailsService userDetailsService;
+
+	@Autowired
+	private JwtUtil jwtTokenUtil;
 	
 	@GetMapping("/clientes")
 	public List<Cliente> index(){
@@ -60,6 +67,19 @@ public class ClienteRestController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deteled(@PathVariable Long id) {
 		clienteService.deleted(id);
+	}
+
+	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
+	public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception{
+		try{
+			new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+		} catch (BadCredentialsException e){
+			throw new Exception("Incorrect User name or password", e);
+		}
+		final UserDetails userDetails = userDetailsService
+				.loadUserByUsername(authenticationRequest.getUsername());
+		final String  jwt = jwtTokenUtil.generateToken(userDetails);
+		return ResponseEntity.ok(new AuthenticationResponse(jwt));
 	}
 	
 }
